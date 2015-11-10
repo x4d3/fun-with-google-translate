@@ -33,9 +33,11 @@
         <p>Click on Listen</p>
         <img src="click-to-listen.png" />
         <p>Change the text to any english text you would like to listen wiz ze french accent</p>
+        
+        <h2>Generate Link</h2> 
         <form>
           <div class="form-group">
-          <label>Generate Link</label> 
+          
           <input type="text" class="form-control" placeholder="Enter text" ng-model="model.input" />
           <a ng-show="model.input != ''" ng-href="{{model.getLink()}}" ng-bind="model.getLink()"></a>
           </div>
@@ -71,7 +73,7 @@
       },
       generateLink : function(){
         var query = encodeURI(this.input);
-        return "https://translate.google.com/translate_tts?ie=UTF-8&q=" + query + "&tl=fr&total=1&idx=0&textlen=43&tk=600830|985272&client=t&prev=input";
+        return "https://translate.google.com/translate_tts?ie=UTF-8&q=" + query + "&tl=fr";
       },
       shorten:function(){
         if (this.input != null){
@@ -87,13 +89,6 @@
         }
       }
     };
-    $scope.$watch(
-        "model.input",
-        function handleFooChange( newValue, oldValue ) {
-            console.log( "model.input:", newValue );
-            $scope.model.shortUrl = null;
-        }
-    );
     
     $scope.fallback = function(copy) {
       window.prompt('Press cmd+c to copy the text below.', copy);
