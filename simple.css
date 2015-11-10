@@ -32,3 +32,6 @@
  color: #00F;
  text-decoration: underline;
  }
+ li{
+ list-style-type: none;
+ }

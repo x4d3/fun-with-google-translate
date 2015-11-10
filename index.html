@@ -39,7 +39,12 @@
           <div class="form-group">
           
           <input type="text" class="form-control" placeholder="Enter text" ng-model="model.input" />
+          Langue:
+          <ul>
+          <li ng-repeat='(key, prop) in LANGUAGES'><input type="radio" ng-model="model.country" ng-value="key" /> {{prop}}</li>
+          </ul>
           <a ng-show="model.input != ''" ng-href="{{model.getLink()}}" ng-bind="model.getLink()"></a>
+
           </div>
           <button class="btn btn-default" clip-copy="model.getLink()" clip-click-fallback="fallback(model.getLink())">Copy!</button>
           <button class="btn btn-default" ng-click="model.shorten()">Shorten!</button>
@@ -60,7 +65,14 @@
     }
   ]);
 
-  myapp.controller('mainController', ['$scope', 'bitly', function ($scope, bitly) {   
+  myapp.controller('mainController', ['$scope', 'bitly', function ($scope, bitly) {
+    $scope.LANGUAGES = {
+      fr:"français",
+      en:"anglais",
+      de:"allemand",
+      es:"espagnol",
+    };
+    
     $scope.model = {
       shortUrls : {},
       input : "The cat is in the kitchen it is incredible",
@@ -73,7 +85,8 @@
       },
       generateLink : function(){
         var query = encodeURI(this.input);
-        return "https://translate.google.com/translate_tts?ie=UTF-8&q=" + query + "&tl=fr";
+        var country = this.country || 'fr';
+        return "https://translate.google.com/translate_tts?ie=UTF-8&q=" + query + "&tl=" + country;
       },
       shorten:function(){
         if (this.input != null){
