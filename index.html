@@ -1,25 +1,108 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
-   "http://www.w3.org/TR/html4/strict.dtd">
+"http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
-   <head>
-      <meta http-equiv="content-type" content="text/html; charset=utf-8">
-      <title>Let's have fun with Google Translate</title>
-		<link rel="stylesheet" type="text/css" href="simple.css">
-		<script>
-		  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-		  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-		  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-		  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-		  ga('create', 'UA-32245224-1', 'auto');
-		  ga('send', 'pageview');
-		</script>
-   </head>
-   <body>
-   <h1>Let's have fun with Google Translate</h1>
-   <p>Go to <a href="https://translate.google.com/#fr/en/The%20cat%20is%20in%20the%20kitchen%2C%20it%20is%20incredible">https://translate.google.com/#fr/en/The%20cat%20is%20in%20the%20kitchen%2C%20it%20is%20incredible</a>
-   </p>
-   <p>Click on Listen</p>
-   <img src ="click-to-listen.png"></img>
-   <p>Change the text to any english text you would like to listen wiz ze french accent</p>
-   </body>
+  <head>
+    <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Let's have fun with Google Translate</title>
+    <link rel="stylesheet" type="text/css" href="simple.css" />
+    <script>
+                  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+                  ga('create', 'UA-32245224-1', 'auto');
+                  ga('send', 'pageview');
+                
+  
+</script>
+    <link href="bootstrap.min.css" rel="stylesheet" />
+    <script src="angular.js"></script>
+    <script src="ZeroClipboard.min.js"></script>
+    <script src="ngClip.js"></script>
+    <script src="bitly-generator.js"></script>
+  </head>
+  <body>
+    <div ng-app="myapp">
+      <div class="container" ng-controller="mainController">
+        <div class="page-header">
+          <h1>Let's have fun with Google Translate</h1>
+        </div>
+        <p>Go to 
+        <a href="https://translate.google.com/#fr/en/The%20cat%20is%20in%20the%20kitchen%2C%20it%20is%20incredible">https://translate.google.com/#fr/en/The%20cat%20is%20in%20the%20kitchen%2C%20it%20is%20incredible</a></p>
+        <p>Click on Listen</p>
+        <img src="click-to-listen.png" />
+        <p>Change the text to any english text you would like to listen wiz ze french accent</p>
+        <form>
+          <div class="form-group">
+          <label>Generate Link</label> 
+          <input type="text" class="form-control" placeholder="Enter text" ng-model="model.input" />
+          <a ng-show="model.input != ''" ng-href="{{model.getLink()}}" ng-bind="model.getLink()"></a>
+          </div>
+          <button class="btn btn-default" clip-copy="model.getLink()" clip-click-fallback="fallback(model.getLink())">Copy!</button>
+          <button class="btn btn-default" ng-click="model.shorten()">Shorten!</button>
+        </form>
+      </div>
+    </div>
+    <script>
+    var myapp = angular.module('myapp', ["ngClipboard", "bitly.generator"]);
+
+    myapp.config(['ngClipProvider','bitlyProvider', function(ngClipProvider, bitlyProvider) {
+      ngClipProvider.setPath("ZeroClipboard.swf");
+      bitlyProvider.cfgBitly({
+          login: 'thespamboite',
+          api: 'R_84d1bdee270743cc9936750a121fc011',
+          domain: 'https://api-ssl.bitly.com',    // optional. (http://api.bit.ly by default)
+          version: '3'                            // optional. Tested with bitly api versions: 2.0.1 & 3 (3 by default)
+      });
+    }
+  ]);
+
+  myapp.controller('mainController', ['$scope', 'bitly', function ($scope, bitly) {   
+    $scope.model = {
+      shortUrls : {},
+      input : "The cat is in the kitchen it is incredible",
+      getLink:function(){
+        if (this.shortUrls[this.input] != null){
+          return this.shortUrls[this.input];
+        }else{
+          return this.generateLink();
+        }
+      },
+      generateLink : function(){
+        var query = encodeURI(this.input);
+        return "https://translate.google.com/translate_tts?ie=UTF-8&q=" + query + "&tl=fr&total=1&idx=0&textlen=43&tk=600830|985272&client=t&prev=input";
+      },
+      shorten:function(){
+        if (this.input != null){
+          var model = this;
+          var longUrl = this.generateLink();
+          bitly.getShortUrl(longUrl).then(function(data){
+              console.log("bit.ly DATA:", data);
+              model.shortUrls[model.input] = data;
+          }, function(e){
+              console.log("Bit.ly ERROR: ", e);
+              model.shortUrls[model.input] = null;
+          });
+        }
+      }
+    };
+    $scope.$watch(
+        "model.input",
+        function handleFooChange( newValue, oldValue ) {
+            console.log( "model.input:", newValue );
+            $scope.model.shortUrl = null;
+        }
+    );
+    
+    $scope.fallback = function(copy) {
+      window.prompt('Press cmd+c to copy the text below.', copy);
+    };
+
+    $scope.showMessage = function() {
+      console.log("clip-click works!");
+    };
+  }]);
+</script>
+  </body>
 </html>
